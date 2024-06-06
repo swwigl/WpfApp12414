@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="92df614614e84f9a9b52d32f599285f2" Name="Diagram1">
+        <EntityTypeShape EntityType="RealEstateDBModel.Agents" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="RealEstateDBModel.Apartments" Width="1.5" PointX="3" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="RealEstateDBModel.Clients" Width="1.5" PointX="6" PointY="9.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="RealEstateDBModel.Demands" Width="1.5" PointX="6" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="RealEstateDBModel.Districts" Width="1.5" PointX="0.75" PointY="2.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="RealEstateDBModel.Supplies" Width="1.5" PointX="8.25" PointY="5.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="RealEstateDBModel.Type_Object" Width="1.5" PointX="0.75" PointY="5.625" IsExpanded="true" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Demands__FK_Agen__4316F928" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Supplies__FK_Age__47DBAE45" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Apartment__FK_ID__3B75D760" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Apartment__FK_Ty__3C69FB99" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Supplies__FK_Apa__49C3F6B7" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Demands__FK_Clie__440B1D61" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Supplies__FK_Cli__48CFD27E" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.FK__Demands__FK_Type__44FF419A" ManuallyRouted="false" />
+        <AssociationConnector Association="RealEstateDBModel.Deals" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

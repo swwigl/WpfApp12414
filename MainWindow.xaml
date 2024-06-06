@@ -1,0 +1,52 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Управление пользователями" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Управление пользователями" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="0,60,0,0" Width="800">
+            <StackPanel Margin="5">
+                <TextBlock Text="ID"/>
+                <TextBox Width="65" Height="30" x:Name="IDTextBox"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock Text="Имя"/>
+                <TextBox Width="65" Height="30" x:Name="FirstNameTextBox"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock Text="Второе имя"/>
+                <TextBox Width="65" Height="30" x:Name="MiddleNameTextBox"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock Text="Фамилия"/>
+                <TextBox Width="65" Height="30" x:Name="LastNameTextBox"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock Text="Email"/>
+                <TextBox Width="65" Height="30" x:Name="EmailTextBox"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock Text="Телефон"/>
+                <TextBox Width="65" Height="30" x:Name="PhoneTextBox"/>
+            </StackPanel>
+            <Button Content="Добавить" Width="65" Height="30" Background="#4CAF50" Foreground="White" Margin="5,0" Click="AddUserButton_Click1"/>
+            <Button Content="Изменить" Width="65" Height="30" Background="#FFA500" Foreground="White" Margin="5,0" Click="UpdateUserButton_Click1"/>
+            <Button Content="Удалить" Width="65" Height="30" Background="#FF4500" Foreground="White" Margin="5,0" Click="DeleteUserButton_Click1"/>
+            <Button Content="Agents" Width="65" Height="30" Background="#007ACC" Foreground="White" Margin="5" Click="OpenAgentsWindowButton_Click"/>
+        </StackPanel>
+        <DataGrid x:Name="UsersDataGrid" Grid.Row="1" AutoGenerateColumns="False" Margin="10" SelectionMode="Single" SelectionChanged="UsersDataGrid_SelectionChanged1">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}"/>
+                <DataGridTextColumn Header="Второе имя" Binding="{Binding MiddleName}"/>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}"/>
+                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
