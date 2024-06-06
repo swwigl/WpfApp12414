@@ -1,52 +1,423 @@
 ﻿<Window x:Class="WpfApp1.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Управление пользователями" Height="450" Width="800">
+        Title="Управление" Height="618" Width="1625"
+        WindowStartupLocation="CenterScreen" MinHeight="618" MinWidth="1625" FontFamily="Roboto" FontSize="14" Foreground="#FF37474F" Background="#FF546E7A">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <TextBlock Text="Управление пользователями" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="0,60,0,0" Width="800">
-            <StackPanel Margin="5">
-                <TextBlock Text="ID"/>
-                <TextBox Width="65" Height="30" x:Name="IDTextBox"/>
-            </StackPanel>
-            <StackPanel Margin="5">
-                <TextBlock Text="Имя"/>
-                <TextBox Width="65" Height="30" x:Name="FirstNameTextBox"/>
-            </StackPanel>
-            <StackPanel Margin="5">
-                <TextBlock Text="Второе имя"/>
-                <TextBox Width="65" Height="30" x:Name="MiddleNameTextBox"/>
-            </StackPanel>
-            <StackPanel Margin="5">
-                <TextBlock Text="Фамилия"/>
-                <TextBox Width="65" Height="30" x:Name="LastNameTextBox"/>
-            </StackPanel>
-            <StackPanel Margin="5">
-                <TextBlock Text="Email"/>
-                <TextBox Width="65" Height="30" x:Name="EmailTextBox"/>
-            </StackPanel>
-            <StackPanel Margin="5">
-                <TextBlock Text="Телефон"/>
-                <TextBox Width="65" Height="30" x:Name="PhoneTextBox"/>
-            </StackPanel>
-            <Button Content="Добавить" Width="65" Height="30" Background="#4CAF50" Foreground="White" Margin="5,0" Click="AddUserButton_Click1"/>
-            <Button Content="Изменить" Width="65" Height="30" Background="#FFA500" Foreground="White" Margin="5,0" Click="UpdateUserButton_Click1"/>
-            <Button Content="Удалить" Width="65" Height="30" Background="#FF4500" Foreground="White" Margin="5,0" Click="DeleteUserButton_Click1"/>
-            <Button Content="Agents" Width="65" Height="30" Background="#007ACC" Foreground="White" Margin="5" Click="OpenAgentsWindowButton_Click"/>
-        </StackPanel>
-        <DataGrid x:Name="UsersDataGrid" Grid.Row="1" AutoGenerateColumns="False" Margin="10" SelectionMode="Single" SelectionChanged="UsersDataGrid_SelectionChanged1">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}"/>
-                <DataGridTextColumn Header="Второе имя" Binding="{Binding MiddleName}"/>
-                <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}"/>
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}"/>
-                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <TabControl>
+            <TabItem Header="Управление клиентами">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Управление клиентами" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="0,60,0,0">
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID"/>
+                            <TextBox Width="65" Height="30" x:Name="IDTextBox">
+                                <TextBox.ToolTip>
+                                    <ToolTip Placement="Bottom"  PlacementTarget="{Binding ElementName=IDTextBox}">
+                                        <ToolTip.Template>
+                                            <ControlTemplate TargetType="ToolTip">
+                                                <StackPanel>
+                                                    <Path Data="M 10 0 L 0 10 L 20 10 Z" Fill="#333" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                    <Border Background="#333" Padding="5" CornerRadius="3">
+                                                        <TextBlock Foreground="White" Text="Только цифры"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ToolTip.Template>
+                                    </ToolTip>
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Фамилия"/>
+                            <TextBox Width="65" Height="30" x:Name="FirstNameTextBox">
+                                <TextBox.ToolTip>
+                                    <ToolTip Placement="Bottom"  PlacementTarget="{Binding ElementName=FirstNameTextBox}">
+                                        <ToolTip.Template>
+                                            <ControlTemplate TargetType="ToolTip">
+                                                <StackPanel>
+                                                    <Path Data="M 10 0 L 0 10 L 20 10 Z" Fill="#333" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                    <Border Background="#333" Padding="5" CornerRadius="3">
+                                                        <TextBlock Foreground="White" Text="Только русские буквы"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ToolTip.Template>
+                                    </ToolTip>
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Имя"/>
+                            <TextBox Width="65" Height="30" x:Name="MiddleNameTextBox">
+                                <TextBox.ToolTip>
+                                    <ToolTip Placement="Bottom"  PlacementTarget="{Binding ElementName=MiddleNameTextBox}">
+                                        <ToolTip.Template>
+                                            <ControlTemplate TargetType="ToolTip">
+                                                <StackPanel>
+                                                    <Path Data="M 10 0 L 0 10 L 20 10 Z" Fill="#333" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                    <Border Background="#333" Padding="5" CornerRadius="3">
+                                                        <TextBlock Foreground="White" Text="Только русские буквы"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ToolTip.Template>
+                                    </ToolTip>
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Отчество"/>
+                            <TextBox Width="65" Height="30" x:Name="LastNameTextBox">
+                                <TextBox.ToolTip>
+                                    <ToolTip Placement="Bottom"  PlacementTarget="{Binding ElementName=LastNameTextBox}">
+                                        <ToolTip.Template>
+                                            <ControlTemplate TargetType="ToolTip">
+                                                <StackPanel>
+                                                    <Path Data="M 10 0 L 0 10 L 20 10 Z" Fill="#333" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                    <Border Background="#333" Padding="5" CornerRadius="3">
+                                                        <TextBlock Foreground="White" Text="Только только русские буквы"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ToolTip.Template>
+                                    </ToolTip>
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Email"/>
+                            <TextBox Width="65" Height="30" x:Name="EmailTextBox">
+                                <TextBox.ToolTip>
+                                    <ToolTip Placement="Bottom"  PlacementTarget="{Binding ElementName=EmailTextBox}">
+                                        <ToolTip.Template>
+                                            <ControlTemplate TargetType="ToolTip">
+                                                <StackPanel>
+                                                    <Path Data="M 10 0 L 0 10 L 20 10 Z" Fill="#333" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                    <Border Background="#333" Padding="5" CornerRadius="3">
+                                                        <TextBlock Foreground="White" Text="Введите в формате: example@gmail.com"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ToolTip.Template>
+                                    </ToolTip>
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Телефон"/>
+                            <TextBox Width="65" Height="30" x:Name="PhoneTextBox">
+                                <TextBox.ToolTip>
+                                    <ToolTip Placement="Bottom"  PlacementTarget="{Binding ElementName=PhoneTextBox}">
+                                        <ToolTip.Template>
+                                            <ControlTemplate TargetType="ToolTip">
+                                                <StackPanel>
+                                                    <Path Data="M 10 0 L 0 10 L 20 10 Z" Fill="#333" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                    <Border Background="#333" Padding="5" CornerRadius="3">
+                                                        <TextBlock Foreground="White" Text="Только цифры"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ToolTip.Template>
+                                    </ToolTip>
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </StackPanel>
+                        <Button Content="Добавить" Width="85" Height="40" Background="#CFD8DC" Foreground="BLACK" Margin="10,0" Click="AddUserButton_Click1"/>
+                        <Button Content="Изменить" Width="75" Height="40" Background="#CFD8DC" Foreground="BLACK" Margin="10,0" Click="UpdateUserButton_Click1"/>
+                        <Button Content="Удалить" Width="70" Height="40" Background="#CFD8DC" Foreground="BLACK" Margin="10,0" Click="DeleteUserButton_Click1"/>
+                    </StackPanel>
+                    <DataGrid x:Name="ClientsDataGrid" Grid.Row="1" AutoGenerateColumns="False" Margin="10" SelectionMode="Single" SelectionChanged="UsersDataGrid_SelectionChanged1" IsReadOnly="True" >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Фамилия" Binding="{Binding FirstName}"/>
+                            <DataGridTextColumn Header="Имя" Binding="{Binding MiddleName}"/>
+                            <DataGridTextColumn Header="Отчество" Binding="{Binding LastName}"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}"/>
+                            <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Управление агентами">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Управление агентами" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0" Grid.Column="1"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="91,60,0,0" Grid.ColumnSpan="2" >
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID"/>
+                            <TextBox Width="65" Height="30" x:Name="AgentIDTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Фамилия"/>
+                            <TextBox Width="65" Height="30" x:Name="AgentFirstNameTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Имя"/>
+                            <TextBox Width="65" Height="30" x:Name="AgentMiddleNameTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Отчество"/>
+                            <TextBox Width="65" Height="30" x:Name="AgentLastNameTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Доля в сделке"/>
+                            <TextBox Width="65" Height="30" x:Name="DealShareTextBox"/>
+                        </StackPanel>
+                        <Button Content="Добавить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="AddAgentButton_Click"/>
+                        <Button Content="Изменить" Width="75" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="UpdateAgentButton_Click"/>
+                        <Button Content="Удалить" Width="70" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="DeleteAgentButton_Click"/>
+                    </StackPanel>
+                    <DataGrid x:Name="AgentsDataGrid" Grid.Row="1" AutoGenerateColumns="False" Margin="10,10,10,10" SelectionMode="Single" SelectionChanged="AgentsDataGrid_SelectionChanged" Grid.ColumnSpan="2" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Фамилия" Binding="{Binding FirstName}"/>
+                            <DataGridTextColumn Header="Имя" Binding="{Binding MiddleName}"/>
+                            <DataGridTextColumn Header="Отчество" Binding="{Binding LastName}"/>
+                            <DataGridTextColumn Header="Доля в сделке" Binding="{Binding DealShare}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Объекты недвижимости">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Управление объектами недвижимости" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="0,60,0,0">
+                        <!-- Поля для управления объектами недвижимости -->
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsIDTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Город"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsCityTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Улица"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsStreetTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Дом"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsHouseTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="№ квартиры"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsNumberTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Район"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsDistrictTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Общая площадь"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsTotalAreaTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Кол-во комнат"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsRoomsTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Этаж"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsFloorTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Тип объекта"/>
+                            <TextBox Width="65" Height="30" x:Name="ApartmentsTypeTextBox"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Margin="0,10,0,10">
+                        <Button Content="Добавить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="AddApartmentsButton_Click"/>
+                        <Button Content="Изменить" Width="75" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="UpdateApartmentsButton_Click"/>
+                        <Button Content="Удалить" Width="70" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="DeleteApartmentsButton_Click"/>
+                    </StackPanel>
+                    <DataGrid x:Name="ApartmentsDataGrid" Grid.Row="2" AutoGenerateColumns="False" Margin="0" SelectionMode="Single" SelectionChanged="ApartmentsDataGrid_SelectionChanged1" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Город" Binding="{Binding Adress_City}"/>
+                            <DataGridTextColumn Header="Улица" Binding="{Binding Adress_Street}"/>
+                            <DataGridTextColumn Header="Дом" Binding="{Binding Adress_House}"/>
+                            <DataGridTextColumn Header="Номер квартиры" Binding="{Binding Adress_Number}"/>
+                            <DataGridTextColumn Header="Район" Binding="{Binding FK_ID_Districts}"/>
+                            <DataGridTextColumn Header="Общая площадь" Binding="{Binding TotalArea}"/>
+                            <DataGridTextColumn Header="Количество комнат" Binding="{Binding Rooms}"/>
+                            <DataGridTextColumn Header="Этаж" Binding="{Binding Floor}"/>
+                            <DataGridTextColumn Header="Тип объекта" Binding="{Binding FK_Type_Object_ID}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Предложение">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <TextBox x:Name="SupplyIDTextBox" />
+                        <TextBox x:Name="SupplyPriceTextBox" />
+                        <ComboBox x:Name="SupplyAgentComboBox" DisplayMemberPath="FirstName" SelectedValuePath="ID"/>
+                        <ComboBox x:Name="SupplyClientComboBox" DisplayMemberPath="FirstName" SelectedValuePath="ID"/>
+                        <ComboBox x:Name="SupplyApartmentComboBox" DisplayMemberPath="Adress_Street" SelectedValuePath="ID"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Добавить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="AddSupplyButton_Click"/>
+                            <Button Content="Обновить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="UpdateSupplyButton_Click"/>
+                            <Button Content="Удалить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="DeleteSupplyButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <DataGrid x:Name="SuppliesDataGrid" Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single" SelectionChanged="SuppliesDataGrid_SelectionChanged" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}"/>
+                            <DataGridTextColumn Header="Цена" Binding="{Binding Price}"/>
+                            <DataGridTextColumn Header="Агент" Binding="{Binding AgentName}"/>
+                            <DataGridTextColumn Header="Клиент" Binding="{Binding ClientName}"/>
+                            <DataGridTextColumn Header="Недвижимость" Binding="{Binding ApartmentAddress}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Потребность">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="90"/>
+                        <RowDefinition Height="70"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Заголовок -->
+                    <TextBlock Text="Управление потребностями" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+
+                    <!-- Поля для управления потребностями -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="0,60,0,0">
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsIDTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Город"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsCityTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Улица"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsStreetTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Дом"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsHouseTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Номер"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsNumberTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Мин. цена"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMinPriceTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Макс. цена"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMaxPriceTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID агента"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsAgentIDTextBox"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Margin="0,10,0,10">
+                            <StackPanel Margin="10">
+                            <TextBlock Text="ID клиента"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsClientIDTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Мин. площадь"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMinAreaTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Макс. площадь"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMaxAreaTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Мин. кол-во комнат"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMinRoomsTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Макс. кол-во комнат"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMaxRoomsTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Мин. этаж"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMinFloorTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Макс. этаж"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsMaxFloorTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID типа объекта"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandsTypeIDTextBox"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Кнопки для управления -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="2" Margin="0,10,0,10">
+                        <Button Content="Добавить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="AddDemandsButton_Click"/>
+                        <Button Content="Изменить" Width="75" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="UpdateDemandsButton_Click"/>
+                        <Button Content="Удалить" Width="70" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="DeleteDemandsButton_Click"/>
+                    </StackPanel>
+
+                    <!-- DataGrid для отображения данных -->
+                    <DataGrid x:Name="DemandsDataGrid" Grid.Row="3" AutoGenerateColumns="False" Margin="0" SelectionMode="Single" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Город" Binding="{Binding Adress_City}"/>
+                            <DataGridTextColumn Header="Улица" Binding="{Binding Adress_Street}"/>
+                            <DataGridTextColumn Header="Дом" Binding="{Binding Adress_House}"/>
+                            <DataGridTextColumn Header="Номер" Binding="{Binding Adress_Number}"/>
+                            <DataGridTextColumn Header="Мин. цена" Binding="{Binding Min_Price}"/>
+                            <DataGridTextColumn Header="Макс. цена" Binding="{Binding Max_Price}"/>
+                            <DataGridTextColumn Header="ID агента" Binding="{Binding FK_AgentID}"/>
+                            <DataGridTextColumn Header="ID клиента" Binding="{Binding FK_ClientID}"/>
+                            <DataGridTextColumn Header="Мин. площадь" Binding="{Binding MinArea}"/>
+                            <DataGridTextColumn Header="Макс. площадь" Binding="{Binding MaxArea}"/>
+                            <DataGridTextColumn Header="Мин. кол-во комнат" Binding="{Binding MinRooms}"/>
+                            <DataGridTextColumn Header="Макс. кол-во комнат" Binding="{Binding MaxRooms}"/>
+                            <DataGridTextColumn Header="Мин. этаж" Binding="{Binding MinFloor}"/>
+                            <DataGridTextColumn Header="Макс. этаж" Binding="{Binding MaxFloor}"/>
+                            <DataGridTextColumn Header="ID типа объекта" Binding="{Binding FK_Type_Object_ID}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Popup x:Name="SuccessPopup" AllowsTransparency="True" Placement="Center" StaysOpen="False" VerticalOffset="20">
+            <Border Background="#d4edda" BorderBrush="#c3e6cb" BorderThickness="1" CornerRadius="5" Padding="10">
+                <StackPanel Orientation="Horizontal">
+                    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Source="C:\Users\bulat\OneDrive\Рабочий стол\WpfApp1\Images\galochka.png"></Image>
+                    <TextBlock x:Name="SuccessPopupText" Text="Операция выполнена успешно" Foreground="Black" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="X" Width="20" Height="20" Margin="10,0,0,0" Click="ClosePopup_Click"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+        <Popup x:Name="UnSuccessPopup" AllowsTransparency="True" Placement="Center" StaysOpen="False" VerticalOffset="20">
+            <Border Background="#FFFF7171" BorderBrush="#FFFF7171" BorderThickness="1" CornerRadius="5" Padding="10">
+                <StackPanel Orientation="Horizontal">
+                    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Source="C:\Users\bulat\OneDrive\Рабочий стол\WpfApp1\Images\krestochka.png"></Image>
+                    <TextBlock x:Name="UnSuccessPopupText" Text="Операция не выполнена" Foreground="Black" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="X" Width="20" Height="20" Margin="10,0,0,0" Click="ClosePopup_Click"/>
+                </StackPanel>
+            </Border>
+        </Popup>
     </Grid>
 </Window>

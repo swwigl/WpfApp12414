@@ -4,13 +4,14 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Хранилище RealEstateDBModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Хранилище RealEstateDBModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Agents">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="int" Nullable="false" />
           <Property Name="FirstName" Type="nvarchar" MaxLength="100" />
+          <Property Name="MiddleName" Type="nvarchar" MaxLength="100" />
           <Property Name="LastName" Type="nvarchar" MaxLength="100" />
           <Property Name="DealShare" Type="nvarchar" MaxLength="100" />
         </EntityType>
@@ -264,8 +265,7 @@
             <End Role="Supplies" EntitySet="Supplies" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="RealEstateDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -275,6 +275,7 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" />
           <Property Name="FirstName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="MiddleName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="LastName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="DealShare" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Demands" Relationship="Self.FK__Demands__FK_Agen__4316F928" FromRole="Agents" ToRole="Demands" />
@@ -522,6 +523,7 @@
           <EntitySetMapping Name="Agents">
             <EntityTypeMapping TypeName="RealEstateDBModel.Agents">
               <MappingFragment StoreEntitySet="Agents">
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
