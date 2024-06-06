@@ -17,7 +17,7 @@ namespace WpfApp1
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Supplies()
         {
-            this.Demands = new HashSet<Demands>();
+            this.Deals = new HashSet<Deals>();
         }
     
         public int ID { get; set; }
@@ -30,6 +30,6 @@ namespace WpfApp1
         public virtual Apartments Apartments { get; set; }
         public virtual Clients Clients { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Demands> Demands { get; set; }
+        public virtual ICollection<Deals> Deals { get; set; }
     }
 }

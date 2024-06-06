@@ -28,6 +28,7 @@ namespace WpfApp1
         public virtual DbSet<Agents> Agents { get; set; }
         public virtual DbSet<Apartments> Apartments { get; set; }
         public virtual DbSet<Clients> Clients { get; set; }
+        public virtual DbSet<Deals> Deals { get; set; }
         public virtual DbSet<Demands> Demands { get; set; }
         public virtual DbSet<Districts> Districts { get; set; }
         public virtual DbSet<Supplies> Supplies { get; set; }

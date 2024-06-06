@@ -293,8 +293,8 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="90"/>
-                        <RowDefinition Height="70"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <!-- Заголовок -->
@@ -336,7 +336,7 @@
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Margin="0,10,0,10">
-                            <StackPanel Margin="10">
+                        <StackPanel Margin="10">
                             <TextBlock Text="ID клиента"/>
                             <TextBox Width="65" Height="30" x:Name="DemandsClientIDTextBox"/>
                         </StackPanel>
@@ -378,7 +378,7 @@
                     </StackPanel>
 
                     <!-- DataGrid для отображения данных -->
-                    <DataGrid x:Name="DemandsDataGrid" Grid.Row="3" AutoGenerateColumns="False" Margin="0" SelectionMode="Single" IsReadOnly="True">
+                    <DataGrid x:Name="DemandsDataGrid" Grid.Row="3" AutoGenerateColumns="False" Margin="0" SelectionMode="Single" IsReadOnly="True" SelectionChanged="DemandsDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Город" Binding="{Binding Adress_City}"/>
@@ -399,6 +399,52 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
+            </TabItem>
+            <TabItem Header="Сделки">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Заголовок -->
+                    <TextBlock Text="Управление сделками" FontSize="24" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+
+                    <!-- Поля для управления -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" Margin="0,60,0,0">
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Обычный ID"/>
+                            <TextBox Width="65" Height="30" x:Name="IDDealsTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID Потребности"/>
+                            <TextBox Width="65" Height="30" x:Name="DemandssIDTextBox"/>
+                        </StackPanel>
+                        <StackPanel Margin="10">
+                            <TextBlock Text="ID Предложения"/>
+                            <TextBox Width="65" Height="30" x:Name="SuppliesIDTextBox"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Кнопки для управления -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="2" Margin="0,10,0,10">
+                        <Button Content="Добавить" Width="85" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="AddDealButton_Click"/>
+                        <Button Content="Изменить" Width="75" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="UpdateDealButton_Click"/>
+                        <Button Content="Удалить" Width="70" Height="40" Background="#CFD8DC" Foreground="Black" Margin="10,0" Click="DeleteDealButton_Click"/>
+                    </StackPanel>
+
+                    <!-- DataGrid для отображения данных -->
+                    <DataGrid x:Name="DealsDataGrid" Grid.Row="3" AutoGenerateColumns="False" Margin="0" SelectionMode="Single" IsReadOnly="True" SelectionChanged="DealsDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" />
+                            <DataGridTextColumn Header="ID Потребности" Binding="{Binding Demant_ID}" />
+                            <DataGridTextColumn Header="ID Предложения" Binding="{Binding Supply_ID}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+
             </TabItem>
         </TabControl>
         <Popup x:Name="SuccessPopup" AllowsTransparency="True" Placement="Center" StaysOpen="False" VerticalOffset="20">

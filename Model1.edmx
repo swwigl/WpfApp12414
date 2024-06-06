@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="Хранилище RealEstateDBModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="Хранилище RealEstateDBModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Agents">
           <Key>
             <PropertyRef Name="ID" />
@@ -43,11 +43,11 @@
         </EntityType>
         <EntityType Name="Deals">
           <Key>
-            <PropertyRef Name="FK_Demant_ID" />
-            <PropertyRef Name="FK_Supply_ID" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="FK_Demant_ID" Type="int" Nullable="false" />
-          <Property Name="FK_Supply_ID" Type="int" Nullable="false" />
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Demant_ID" Type="int" />
+          <Property Name="Supply_ID" Type="int" />
         </EntityType>
         <EntityType Name="Demands">
           <Key>
@@ -119,27 +119,27 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Deals__FK_Demant__4CA06362">
-          <End Role="Demands" Type="Self.Demands" Multiplicity="1" />
+        <Association Name="FK__Deals__Demant_ID__5441852A">
+          <End Role="Demands" Type="Self.Demands" Multiplicity="0..1" />
           <End Role="Deals" Type="Self.Deals" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Demands">
               <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Deals">
-              <PropertyRef Name="FK_Demant_ID" />
+              <PropertyRef Name="Demant_ID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Deals__FK_Supply__4D94879B">
-          <End Role="Supplies" Type="Self.Supplies" Multiplicity="1" />
+        <Association Name="FK__Deals__Supply_ID__5535A963">
+          <End Role="Supplies" Type="Self.Supplies" Multiplicity="0..1" />
           <End Role="Deals" Type="Self.Deals" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Supplies">
               <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Deals">
-              <PropertyRef Name="FK_Supply_ID" />
+              <PropertyRef Name="Supply_ID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -232,11 +232,11 @@
             <End Role="Type_Object" EntitySet="Type_Object" />
             <End Role="Apartments" EntitySet="Apartments" />
           </AssociationSet>
-          <AssociationSet Name="FK__Deals__FK_Demant__4CA06362" Association="Self.FK__Deals__FK_Demant__4CA06362">
+          <AssociationSet Name="FK__Deals__Demant_ID__5441852A" Association="Self.FK__Deals__Demant_ID__5441852A">
             <End Role="Demands" EntitySet="Demands" />
             <End Role="Deals" EntitySet="Deals" />
           </AssociationSet>
-          <AssociationSet Name="FK__Deals__FK_Supply__4D94879B" Association="Self.FK__Deals__FK_Supply__4D94879B">
+          <AssociationSet Name="FK__Deals__Supply_ID__5535A963" Association="Self.FK__Deals__Supply_ID__5535A963">
             <End Role="Supplies" EntitySet="Supplies" />
             <End Role="Deals" EntitySet="Deals" />
           </AssociationSet>
@@ -265,7 +265,8 @@
             <End Role="Supplies" EntitySet="Supplies" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="RealEstateDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -312,6 +313,16 @@
           <NavigationProperty Name="Demands" Relationship="Self.FK__Demands__FK_Clie__440B1D61" FromRole="Clients" ToRole="Demands" />
           <NavigationProperty Name="Supplies" Relationship="Self.FK__Supplies__FK_Cli__48CFD27E" FromRole="Clients" ToRole="Supplies" />
         </EntityType>
+        <EntityType Name="Deals">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Demant_ID" Type="Int32" />
+          <Property Name="Supply_ID" Type="Int32" />
+          <NavigationProperty Name="Demands" Relationship="Self.FK__Deals__Demant_ID__5441852A" FromRole="Deals" ToRole="Demands" />
+          <NavigationProperty Name="Supplies" Relationship="Self.FK__Deals__Supply_ID__5535A963" FromRole="Deals" ToRole="Supplies" />
+        </EntityType>
         <EntityType Name="Demands">
           <Key>
             <PropertyRef Name="ID" />
@@ -334,8 +345,8 @@
           <Property Name="FK_Type_Object_ID" Type="Int32" />
           <NavigationProperty Name="Agents" Relationship="Self.FK__Demands__FK_Agen__4316F928" FromRole="Demands" ToRole="Agents" />
           <NavigationProperty Name="Clients" Relationship="Self.FK__Demands__FK_Clie__440B1D61" FromRole="Demands" ToRole="Clients" />
+          <NavigationProperty Name="Deals" Relationship="Self.FK__Deals__Demant_ID__5441852A" FromRole="Demands" ToRole="Deals" />
           <NavigationProperty Name="Type_Object" Relationship="Self.FK__Demands__FK_Type__44FF419A" FromRole="Demands" ToRole="Type_Object" />
-          <NavigationProperty Name="Supplies" Relationship="Self.Deals" FromRole="Demands" ToRole="Supplies" />
         </EntityType>
         <EntityType Name="Districts">
           <Key>
@@ -358,7 +369,7 @@
           <NavigationProperty Name="Agents" Relationship="Self.FK__Supplies__FK_Age__47DBAE45" FromRole="Supplies" ToRole="Agents" />
           <NavigationProperty Name="Apartments" Relationship="Self.FK__Supplies__FK_Apa__49C3F6B7" FromRole="Supplies" ToRole="Apartments" />
           <NavigationProperty Name="Clients" Relationship="Self.FK__Supplies__FK_Cli__48CFD27E" FromRole="Supplies" ToRole="Clients" />
-          <NavigationProperty Name="Demands" Relationship="Self.Deals" FromRole="Supplies" ToRole="Demands" />
+          <NavigationProperty Name="Deals" Relationship="Self.FK__Deals__Supply_ID__5535A963" FromRole="Supplies" ToRole="Deals" />
         </EntityType>
         <EntityType Name="Type_Object">
           <Key>
@@ -453,6 +464,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK__Deals__Demant_ID__5441852A">
+          <End Role="Demands" Type="Self.Demands" Multiplicity="0..1" />
+          <End Role="Deals" Type="Self.Deals" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Demands">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Deals">
+              <PropertyRef Name="Demant_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Deals__Supply_ID__5535A963">
+          <End Role="Supplies" Type="Self.Supplies" Multiplicity="0..1" />
+          <End Role="Deals" Type="Self.Deals" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Supplies">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Deals">
+              <PropertyRef Name="Supply_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__Demands__FK_Type__44FF419A">
           <End Role="Type_Object" Type="Self.Type_Object" Multiplicity="0..1" />
           <End Role="Demands" Type="Self.Demands" Multiplicity="*" />
@@ -465,14 +500,11 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="Deals">
-          <End Role="Demands" Type="Self.Demands" Multiplicity="*" />
-          <End Role="Supplies" Type="Self.Supplies" Multiplicity="*" />
-        </Association>
         <EntityContainer Name="RealEstateDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Agents" EntityType="Self.Agents" />
           <EntitySet Name="Apartments" EntityType="Self.Apartments" />
           <EntitySet Name="Clients" EntityType="Self.Clients" />
+          <EntitySet Name="Deals" EntityType="Self.Deals" />
           <EntitySet Name="Demands" EntityType="Self.Demands" />
           <EntitySet Name="Districts" EntityType="Self.Districts" />
           <EntitySet Name="Supplies" EntityType="Self.Supplies" />
@@ -505,13 +537,17 @@
             <End Role="Clients" EntitySet="Clients" />
             <End Role="Supplies" EntitySet="Supplies" />
           </AssociationSet>
+          <AssociationSet Name="FK__Deals__Demant_ID__5441852A" Association="Self.FK__Deals__Demant_ID__5441852A">
+            <End Role="Demands" EntitySet="Demands" />
+            <End Role="Deals" EntitySet="Deals" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Deals__Supply_ID__5535A963" Association="Self.FK__Deals__Supply_ID__5535A963">
+            <End Role="Supplies" EntitySet="Supplies" />
+            <End Role="Deals" EntitySet="Deals" />
+          </AssociationSet>
           <AssociationSet Name="FK__Demands__FK_Type__44FF419A" Association="Self.FK__Demands__FK_Type__44FF419A">
             <End Role="Type_Object" EntitySet="Type_Object" />
             <End Role="Demands" EntitySet="Demands" />
-          </AssociationSet>
-          <AssociationSet Name="Deals" Association="Self.Deals">
-            <End Role="Demands" EntitySet="Demands" />
-            <End Role="Supplies" EntitySet="Supplies" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -523,9 +559,9 @@
           <EntitySetMapping Name="Agents">
             <EntityTypeMapping TypeName="RealEstateDBModel.Agents">
               <MappingFragment StoreEntitySet="Agents">
-                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
                 <ScalarProperty Name="DealShare" ColumnName="DealShare" />
               </MappingFragment>
@@ -556,6 +592,15 @@
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
                 <ScalarProperty Name="Phone" ColumnName="Phone" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Deals">
+            <EntityTypeMapping TypeName="RealEstateDBModel.Deals">
+              <MappingFragment StoreEntitySet="Deals">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Demant_ID" ColumnName="Demant_ID" />
+                <ScalarProperty Name="Supply_ID" ColumnName="Supply_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -609,14 +654,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <AssociationSetMapping Name="Deals" TypeName="RealEstateDBModel.Deals" StoreEntitySet="Deals">
-            <EndProperty Name="Demands">
-              <ScalarProperty Name="ID" ColumnName="FK_Demant_ID" />
-            </EndProperty>
-            <EndProperty Name="Supplies">
-              <ScalarProperty Name="ID" ColumnName="FK_Supply_ID" />
-            </EndProperty>
-          </AssociationSetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

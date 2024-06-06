@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Data;
+using System.Data.Entity.Infrastructure;
 
 namespace WpfApp1
 {
@@ -20,6 +21,7 @@ namespace WpfApp1
             LoadSupplies();
             LoadComboBoxes();
             LoadDemands();
+            LoadDeals();
         }
 
 
@@ -81,6 +83,28 @@ namespace WpfApp1
                 }).ToList();
 
             SuppliesDataGrid.ItemsSource = supplies;
+        }
+
+        private void LoadDeals()
+        {
+            try
+            {
+                // Загрузка сделок из базы данных
+                var deals = dbContext.Deals
+                    .Select(d => new
+                    {
+                        ID = d.ID,
+                        Demant_ID = d.Demant_ID,
+                        Supply_ID = d.Supply_ID
+                    }).ToList();
+
+                // Привязка загруженных сделок к DataGrid
+                DealsDataGrid.ItemsSource = deals;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке сделок: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
 
@@ -813,102 +837,471 @@ namespace WpfApp1
 
         private void AddDemandsButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!ValidateDemandsInputs())
+            {
+                MessageBox.Show("Все поля должны быть заполнены корректно.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(DemandsIDTextBox.Text, out int demandId) || demandId < 0)
+            {
+                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!double.TryParse(DemandsMinPriceTextBox.Text, out double minPrice) ||
+                !double.TryParse(DemandsMaxPriceTextBox.Text, out double maxPrice))
+            {
+                MessageBox.Show("Цены должны быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(DemandsAgentIDTextBox.Text, out int agentId) ||
+                !int.TryParse(DemandsClientIDTextBox.Text, out int clientId) ||
+                !int.TryParse(DemandsTypeIDTextBox.Text, out int typeId))
+            {
+                MessageBox.Show("Агент, клиент и тип объекта должны быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверяем существование агента
+            if (!dbContext.Agents.Any(a => a.ID == agentId))
+            {
+                MessageBox.Show("Агент с таким ID не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверяем существование клиента
+            if (!dbContext.Clients.Any(c => c.ID == clientId))
+            {
+                MessageBox.Show("Клиент с таким ID не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверяем существование типа объекта
+            if (!dbContext.Type_Object.Any(t => t.ID == typeId))
+            {
+                MessageBox.Show("Тип объекта с таким ID не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Создаем новую потребность
+            Demands newDemand = new Demands
+            {
+                ID = demandId,
+                Adress_City = DemandsCityTextBox.Text,
+                Adress_Street = DemandsStreetTextBox.Text,
+                Adress_House = DemandsHouseTextBox.Text,
+                Adress_Number = Convert.ToInt32(DemandsNumberTextBox.Text),
+                Min_Price = minPrice,
+                Max_Price = maxPrice,
+                FK_AgentID = agentId,
+                FK_ClientID = clientId,
+                FK_Type_Object_ID = typeId,
+                MinArea = Convert.ToDouble(DemandsMinAreaTextBox.Text),
+                MaxArea = Convert.ToDouble(DemandsMaxAreaTextBox.Text),
+                MinRooms = Convert.ToInt32(DemandsMinRoomsTextBox.Text),
+                MaxRooms = Convert.ToInt32(DemandsMaxRoomsTextBox.Text),
+                MinFloor = Convert.ToInt32(DemandsMinFloorTextBox.Text),
+                MaxFloor = Convert.ToInt32(DemandsMaxFloorTextBox.Text)
+            };
+
             try
             {
-                Demands demand = new Demands()
-                {
-                    ID = int.Parse(DemandsIDTextBox.Text),
-                    Adress_City = DemandsCityTextBox.Text,
-                    Adress_Street = DemandsStreetTextBox.Text,
-                    Adress_House = DemandsHouseTextBox.Text,
-                    Adress_Number = Convert.ToInt32(DemandsNumberTextBox.Text),
-                    Min_Price = int.Parse(DemandsMinPriceTextBox.Text),
-                    Max_Price = int.Parse(DemandsMaxPriceTextBox.Text),
-                    FK_AgentID = int.Parse(DemandsAgentIDTextBox.Text),
-                    FK_ClientID = int.Parse(DemandsClientIDTextBox.Text),
-                    MinArea = int.Parse(DemandsMinAreaTextBox.Text),
-                    MaxArea = int.Parse(DemandsMaxAreaTextBox.Text),
-                    MinRooms = int.Parse(DemandsMinRoomsTextBox.Text),
-                    MaxRooms = int.Parse(DemandsMaxRoomsTextBox.Text),
-                    MinFloor = int.Parse(DemandsMinFloorTextBox.Text),
-                    MaxFloor = int.Parse(DemandsMaxFloorTextBox.Text),
-                    FK_Type_Object_ID = int.Parse(DemandsTypeIDTextBox.Text)
-                };
-
-                // Добавление новой потребности в базу данных и обновление DataGrid
-                dbContext.Demands.Add(demand);
+                dbContext.Demands.Add(newDemand);
                 dbContext.SaveChanges();
                 LoadDemands();
-                SuccessPopupText.Text = "Потребность успешно добавлена!";
-                SuccessPopup.IsOpen = true;
+                ClearDemandInputs();
+                MessageBox.Show("Потребность успешно добавлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                UnSuccessPopupText.Text = $"Ошибка при добавлении потребности: {ex.Message}";
-                UnSuccessPopup.IsOpen = true;
+                MessageBox.Show($"Ошибка при добавлении потребности: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+        private void DemandsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DemandsDataGrid.SelectedItem != null)
+            {
+                dynamic selectedDemand = DemandsDataGrid.SelectedItem;
+
+                // Проверяем, что свойства объекта не равны null перед приведением их к строке
+                DemandsIDTextBox.Text = selectedDemand.ID?.ToString();
+                DemandsCityTextBox.Text = selectedDemand.Adress_City;
+                DemandsStreetTextBox.Text = selectedDemand.Adress_Street;
+                DemandsHouseTextBox.Text = selectedDemand.Adress_House;
+                DemandsNumberTextBox.Text = selectedDemand.Adress_Number?.ToString();
+                DemandsMinPriceTextBox.Text = selectedDemand.Min_Price?.ToString();
+                DemandsMaxPriceTextBox.Text = selectedDemand.Max_Price?.ToString();
+                DemandsAgentIDTextBox.Text = selectedDemand.FK_AgentID?.ToString();
+                DemandsClientIDTextBox.Text = selectedDemand.FK_ClientID?.ToString();
+                DemandsMinAreaTextBox.Text = selectedDemand.MinArea?.ToString();
+                DemandsMaxAreaTextBox.Text = selectedDemand.MaxArea?.ToString();
+                DemandsMinRoomsTextBox.Text = selectedDemand.MinRooms?.ToString();
+                DemandsMaxRoomsTextBox.Text = selectedDemand.MaxRooms?.ToString();
+                DemandsMinFloorTextBox.Text = selectedDemand.MinFloor?.ToString();
+                DemandsMaxFloorTextBox.Text = selectedDemand.MaxFloor?.ToString();
+                DemandsTypeIDTextBox.Text = selectedDemand.FK_Type_Object_ID?.ToString();
+            }
+        }
+
+
+
+
+
+        private void ClearDemandInputs()
+        {
+            DemandsIDTextBox.Text = "";
+            DemandsCityTextBox.Text = "";
+            DemandsStreetTextBox.Text = "";
+            DemandsHouseTextBox.Text = "";
+            DemandsNumberTextBox.Text = "";
+            DemandsMinPriceTextBox.Text = "";
+            DemandsMaxPriceTextBox.Text = "";
+            DemandsAgentIDTextBox.Text = "";
+            DemandsClientIDTextBox.Text = "";
+            DemandsMinAreaTextBox.Text = "";
+            DemandsMaxAreaTextBox.Text = "";
+            DemandsMinRoomsTextBox.Text = "";
+            DemandsMaxRoomsTextBox.Text = "";
+            DemandsMinFloorTextBox.Text = "";
+            DemandsMaxFloorTextBox.Text = "";
+            DemandsTypeIDTextBox.Text = "";
+        }
+
+
+        // Метод для проверки корректности введенных данных перед добавлением
+        private bool ValidateDemandsInputs()
+        {
+            return !string.IsNullOrWhiteSpace(DemandsIDTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsCityTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsStreetTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsHouseTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsNumberTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMinPriceTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMaxPriceTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsAgentIDTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsClientIDTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMinAreaTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMaxAreaTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMinRoomsTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMaxRoomsTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMinFloorTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsMaxFloorTextBox.Text) &&
+                   !string.IsNullOrWhiteSpace(DemandsTypeIDTextBox.Text);
+        }
+
+
+
         private void UpdateDemandsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DemandsDataGrid.SelectedItem == null) return;
+            if (!int.TryParse(DemandsIDTextBox.Text, out int demandId) || demandId < 0)
+            {
+                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var existingDemand = dbContext.Demands.FirstOrDefault(d => d.ID == demandId);
+            if (existingDemand == null)
+            {
+                MessageBox.Show("Потребность с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!double.TryParse(DemandsMinPriceTextBox.Text, out double minPrice) ||
+                !double.TryParse(DemandsMaxPriceTextBox.Text, out double maxPrice))
+            {
+                MessageBox.Show("Цены должны быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(DemandsAgentIDTextBox.Text, out int agentId) ||
+                !int.TryParse(DemandsClientIDTextBox.Text, out int clientId) ||
+                !int.TryParse(DemandsTypeIDTextBox.Text, out int typeId) ||
+                !double.TryParse(DemandsMinAreaTextBox.Text, out double minArea) ||
+                !double.TryParse(DemandsMaxAreaTextBox.Text, out double maxArea) ||
+                !int.TryParse(DemandsMinRoomsTextBox.Text, out int minRooms) ||
+                !int.TryParse(DemandsMaxRoomsTextBox.Text, out int maxRooms) ||
+                !int.TryParse(DemandsMinFloorTextBox.Text, out int minFloor) ||
+                !int.TryParse(DemandsMaxFloorTextBox.Text, out int maxFloor))
+            {
+                MessageBox.Show("Некоторые поля содержат некорректные данные.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            existingDemand.Adress_City = DemandsCityTextBox.Text;
+            existingDemand.Adress_Street = DemandsStreetTextBox.Text;
+            existingDemand.Adress_House = DemandsHouseTextBox.Text;
+            existingDemand.Adress_Number = Convert.ToInt32(DemandsNumberTextBox.Text);
+            existingDemand.Min_Price = Convert.ToDouble(minPrice);
+            existingDemand.Max_Price = Convert.ToDouble(maxPrice);
+            existingDemand.FK_AgentID = agentId;
+            existingDemand.FK_ClientID = clientId;
+            existingDemand.MinArea = Convert.ToDouble(minArea);
+            existingDemand.MaxArea = Convert.ToDouble(maxArea);
+            existingDemand.MinRooms = minRooms;
+            existingDemand.MaxRooms = maxRooms;
+            existingDemand.MinFloor = minFloor;
+            existingDemand.MaxFloor = maxFloor;
+            existingDemand.FK_Type_Object_ID = typeId;
 
             try
             {
-                Demands selectedDemand = (Demands)DemandsDataGrid.SelectedItem;
-                Demands demand = dbContext.Demands.Find(selectedDemand.ID);
-
-                demand.Adress_City = DemandsCityTextBox.Text;
-                demand.Adress_Street = DemandsStreetTextBox.Text;
-                demand.Adress_House = DemandsHouseTextBox.Text;
-                demand.Adress_Number = Convert.ToInt32(DemandsNumberTextBox.Text);
-                demand.Min_Price = int.Parse(DemandsMinPriceTextBox.Text);
-                demand.Max_Price = int.Parse(DemandsMaxPriceTextBox.Text);
-                demand.FK_AgentID = int.Parse(DemandsAgentIDTextBox.Text);
-                demand.FK_ClientID = int.Parse(DemandsClientIDTextBox.Text);
-                demand.MinArea = int.Parse(DemandsMinAreaTextBox.Text);
-                demand.MaxArea = int.Parse(DemandsMaxAreaTextBox.Text);
-                demand.MinRooms = int.Parse(DemandsMinRoomsTextBox.Text);
-                demand.MaxRooms = int.Parse(DemandsMaxRoomsTextBox.Text);
-                demand.MinFloor = int.Parse(DemandsMinFloorTextBox.Text);
-                demand.MaxFloor = int.Parse(DemandsMaxFloorTextBox.Text);
-                demand.FK_Type_Object_ID = int.Parse(DemandsTypeIDTextBox.Text);
-
-                // Сохранение изменений в базе данных и обновление DataGrid
                 dbContext.SaveChanges();
                 LoadDemands();
-                SuccessPopupText.Text = "Потребность успешно обновлена!";
-                SuccessPopup.IsOpen = true;
+                ClearDemandInputs();
+                MessageBox.Show("Потребность успешно обновлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                UnSuccessPopupText.Text = $"Ошибка при обновлении потребности: {ex.Message}";
-                UnSuccessPopup.IsOpen = true;
+                MessageBox.Show($"Ошибка при обновлении потребности: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void DeleteDemandsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DemandsDataGrid.SelectedItem == null) return;
+            if (!int.TryParse(DemandsIDTextBox.Text, out int demandId) || demandId < 0)
+            {
+                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var demandToDelete = dbContext.Demands.FirstOrDefault(d => d.ID == demandId);
+            if (demandToDelete == null)
+            {
+                MessageBox.Show("Потребность с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
-                Demands selectedDemand = (Demands)DemandsDataGrid.SelectedItem;
-                Demands demand = dbContext.Demands.Find(selectedDemand.ID);
-
-                // Удаление потребности из базы данных и обновление DataGrid
-                dbContext.Demands.Remove(demand);
+                dbContext.Demands.Remove(demandToDelete);
                 dbContext.SaveChanges();
                 LoadDemands();
-                SuccessPopupText.Text = "Потребность успешно удалена!";
-                SuccessPopup.IsOpen = true;
+                ClearDemandInputs();
+                MessageBox.Show("Потребность успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                UnSuccessPopupText.Text = $"Ошибка при удалении потребности: {ex.Message}";
-                UnSuccessPopup.IsOpen = true;
+                MessageBox.Show($"Ошибка при удалении потребности: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+        private void AddDealButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!int.TryParse(IDDealsTextBox.Text, out int id))
+                {
+                    MessageBox.Show("Поле ID должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (id < 0)
+                {
+                    MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!int.TryParse(DemandssIDTextBox.Text, out int demandId))
+                {
+                    MessageBox.Show("Поле ID Потребности должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (demandId < 0)
+                {
+                    MessageBox.Show("ID Потребности должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!int.TryParse(SuppliesIDTextBox.Text, out int supplyId))
+                {
+                    MessageBox.Show("Поле ID Предложения должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (supplyId < 0)
+                {
+                    MessageBox.Show("ID Предложения должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Проверка существования записи в таблице Demands
+                var demandExists = dbContext.Demands.Any(d => d.ID == demandId);
+
+                if (!demandExists)
+                {
+                    MessageBox.Show("Потребность с указанным ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Проверка существования записи в таблице Supplies
+                var supplyExists = dbContext.Supplies.Any(s => s.ID == supplyId);
+
+                if (!supplyExists)
+                {
+                    MessageBox.Show("Предложение с указанным ID не найдено.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Добавление сделки в базу данных
+                dbContext.Deals.Add(new Deals { ID = id, Demant_ID = demandId, Supply_ID = supplyId });
+                dbContext.SaveChanges();
+
+                // Обновление DataGrid
+                LoadDeals();
+
+                MessageBox.Show("Сделка успешно добавлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+
+
+
+
+
+
+        private void UpdateDealButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!int.TryParse(IDDealsTextBox.Text, out int id) || id < 0)
+            {
+                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var existingDeal = dbContext.Deals.FirstOrDefault(d => d.ID == id);
+            if (existingDeal == null)
+            {
+                MessageBox.Show("Сделка с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(DemandssIDTextBox.Text, out int demandId))
+            {
+                MessageBox.Show("Поле ID Потребности должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (demandId < 0)
+            {
+                MessageBox.Show("ID Потребности должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(SuppliesIDTextBox.Text, out int supplyId))
+            {
+                MessageBox.Show("Поле ID Предложения должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (supplyId < 0)
+            {
+                MessageBox.Show("ID Предложения должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверка существования записи в таблице Demands
+            var demandExists = dbContext.Demands.Any(d => d.ID == demandId);
+            if (!demandExists)
+            {
+                MessageBox.Show("Потребность с указанным ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверка существования записи в таблице Supplies
+            var supplyExists = dbContext.Supplies.Any(s => s.ID == supplyId);
+            if (!supplyExists)
+            {
+                MessageBox.Show("Предложение с указанным ID не найдено.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Обновление данных сделки
+            existingDeal.Demant_ID = demandId;
+            existingDeal.Supply_ID = supplyId;
+
+            try
+            {
+                dbContext.SaveChanges();
+                LoadDeals();
+                ClearDealInputs();
+                MessageBox.Show("Сделка успешно обновлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ClearDealInputs()
+        {
+            IDTextBox.Text = string.Empty;
+            DemandssIDTextBox.Text = string.Empty;
+            SuppliesIDTextBox.Text = string.Empty;
+        }
+
+
+
+        private void DeleteDealButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!int.TryParse(IDDealsTextBox.Text, out int dealId) || dealId < 0)
+            {
+                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dealToDelete = dbContext.Deals.FirstOrDefault(d => d.ID == dealId);
+            if (dealToDelete == null)
+            {
+                MessageBox.Show("Сделка с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Подтверждение удаления
+                var result = MessageBox.Show("Вы уверены, что хотите удалить выбранную сделку?", "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+
+                dbContext.Deals.Remove(dealToDelete);
+                dbContext.SaveChanges();
+                LoadDeals();
+                ClearDealInputs();
+                MessageBox.Show("Сделка успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private void DealsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (DealsDataGrid.SelectedItem != null)
+                {
+                    dynamic selectedDeal = DealsDataGrid.SelectedItem;
+                    IDDealsTextBox.Text = selectedDeal.ID.ToString();
+                    DemandssIDTextBox.Text = selectedDeal.Demant_ID.ToString();
+                    SuppliesIDTextBox.Text = selectedDeal.Supply_ID.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при выборе сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
