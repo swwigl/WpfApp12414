@@ -4,6 +4,103 @@
              xmlns:local="clr-namespace:WpfApp1"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!-- Цветовая палитра -->
+        <SolidColorBrush x:Key="WindowColor" Color="#546E7A"/>
+        <SolidColorBrush x:Key="TabItemBackground" Color="#FF607D8B"/>
+        <SolidColorBrush x:Key="TabItemSelectedBackground" Color="#FF455A64"/>
+        <SolidColorBrush x:Key="TabItemMouseOverBackground" Color="#FF78909C"/>
+        <SolidColorBrush x:Key="TabItemDisabledBackground" Color="#FFB0BEC5"/>
+        <SolidColorBrush x:Key="TabItemForeground" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="TabItemSelectedForeground" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="TabItemDisabledForeground" Color="#FF90A4AE"/>
+        <SolidColorBrush x:Key="TabItemBorder" Color="#FF37474F"/>
+        <SolidColorBrush x:Key="TabControlBackground" Color="#FF37474F"/>
+        
+        <Style TargetType="Button" x:Key="CustomButtonStyle">
+            <Setter Property="Background" Value="#546e7a"/>
+            <Setter Property="Foreground" Value="white"/>
+            <Setter Property="Width" Value="85"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="5" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CustomTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Margin" Value="0 0 0 5"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="MinWidth" Value="150"/>
+        </Style>
+        <Style x:Key="CustomTextBoxStyle1" TargetType="TextBox">
+            <Setter Property="Margin" Value="0 0 0 5"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="MinWidth" Value="100"/>
+        </Style>
+        
+
+        <!-- Стиль для TabItem -->
+        <Style TargetType="TabItem">
+            <!-- Стиль заголовка вкладки в обычном состоянии -->
+            
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border x:Name="Border"
+                                    BorderBrush="{StaticResource TabItemBorder}"
+                                    BorderThickness="1"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="5,5,0,0"
+                                    Padding="10,5">
+                                <ContentPresenter x:Name="ContentSite"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"
+                                                  ContentSource="Header"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- Триггер для состояния выбранного элемента -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource TabItemSelectedBackground}"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource TabItemBorder}"/>
+                                <Setter Property="Foreground" Value="{StaticResource TabItemSelectedForeground}"/>
+                            </Trigger>
+                            <!-- Триггер для состояния наведения мыши -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource TabItemMouseOverBackground}"/>
+                            </Trigger>
+                            <!-- Триггер для состояния отключенного элемента -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource TabItemDisabledBackground}"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource TabItemBorder}"/>
+                                <Setter Property="Foreground" Value="{StaticResource TabItemDisabledForeground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="{StaticResource TabItemBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource TabItemForeground}"/>
+        </Style>
+
+        <!-- Стиль для TabControl -->
+        <Style TargetType="TabControl">
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TabItemBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{StaticResource TabControlBackground}"/>
+            <Setter Property="TabStripPlacement" Value="Top"/>
+        </Style>
+        
     </Application.Resources>
 </Application>

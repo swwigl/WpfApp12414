@@ -6,12 +6,17 @@ using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Data;
 using System.Data.Entity.Infrastructure;
+using WpfApp1;
+using System.Timers;
 
 namespace WpfApp1
 {
     public partial class MainWindow : Window
     {
         private RealEstateDBEntities dbContext = new RealEstateDBEntities();
+        private Timer timer;
+        private bool isShowingSuccessPopup;
+        private bool isShowingUnSuccessPopup;
         public MainWindow()
         {
             InitializeComponent();
@@ -22,6 +27,9 @@ namespace WpfApp1
             LoadComboBoxes();
             LoadDemands();
             LoadDeals();
+            timer = new Timer();
+            timer.AutoReset = false;
+            timer.Elapsed += TimerElapsed;
         }
 
 
@@ -37,8 +45,10 @@ namespace WpfApp1
 
         private void LoadApartments()
         {
-            ApartmentsDataGrid.ItemsSource = dbContext.Apartments.ToList();
+            var apartments = dbContext.Apartments.ToList();
+            ApartmentsDataGrid.ItemsSource = apartments;
         }
+
 
         private void LoadDemands()
         {
@@ -210,9 +220,15 @@ namespace WpfApp1
             }
         }
 
+
+
         private void UpdateUserButton_Click1(object sender, RoutedEventArgs e)
         {
-            if (ClientsDataGrid.SelectedItem == null) return;
+            if (ClientsDataGrid.SelectedItem == null)
+            {
+                ShowPopup("Выберите пользователя для обновления.", false);
+                return;
+            }
 
             var selectedClient = (Clients)ClientsDataGrid.SelectedItem;
             var client = dbContext.Clients.Find(selectedClient.ID);
@@ -226,13 +242,21 @@ namespace WpfApp1
                 client.Phone = PhoneTextBox.Text;
                 client.MiddleName = MiddleNameTextBox.Text;
 
-                dbContext.Entry(client).State = EntityState.Modified;
-                dbContext.SaveChanges();
-                LoadClients();
-                ClearInputs();
-                MessageBox.Show("Пользователь успешно обновлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                try
+                {
+                    dbContext.Entry(client).State = EntityState.Modified;
+                    dbContext.SaveChanges();
+                    LoadClients();
+                    ClearInputs();
+                    ShowPopup("Пользователь успешно обновлен!", true);
+                }
+                catch (Exception ex)
+                {
+                    ShowPopup($"Ошибка при обновлении пользователя: {ex.Message}", false);
+                }
             }
         }
+
 
         private void DeleteUserButton_Click1(object sender, RoutedEventArgs e)
         {
@@ -243,13 +267,21 @@ namespace WpfApp1
 
             if (client != null)
             {
-                dbContext.Clients.Remove(client);
-                dbContext.SaveChanges();
-                LoadClients();
-                ClearInputs();
-                MessageBox.Show("Пользователь успешно удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                try
+                {
+                    dbContext.Clients.Remove(client);
+                    dbContext.SaveChanges();
+                    LoadClients();
+                    ClearInputs();
+                    ShowPopup("Пользователь успешно удален!", true);
+                }
+                catch (Exception ex)
+                {
+                    ShowPopup($"Ошибка при удалении пользователя: {ex.Message}", false);
+                }
             }
         }
+
 
         private void UsersDataGrid_SelectionChanged1(object sender, SelectionChangedEventArgs e)
         {
@@ -272,25 +304,25 @@ namespace WpfApp1
                 string.IsNullOrWhiteSpace(LastNameTextBox.Text) ||
                 string.IsNullOrWhiteSpace(DealShareTextBox.Text))
             {
-                MessageBox.Show("Все поля должны быть заполнены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Все поля должны быть заполнены.", false);
                 return;
             }
 
             if (!int.TryParse(IDTextBox.Text, out int agentId) || agentId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             if (!double.TryParse(DealShareTextBox.Text, out double dealShare))
             {
-                MessageBox.Show("Доля в сделке должна быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Доля в сделке должна быть числом.", false);
                 return;
             }
 
             if (dbContext.Agents.Any(a => a.ID == agentId))
             {
-                MessageBox.Show("Агент с таким ID уже существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Агент с таким ID уже существует.", false);
                 return;
             }
 
@@ -309,11 +341,11 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadAgents();
                 ClearAgentInputs();
-                MessageBox.Show("Агент успешно добавлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Агент успешно добавлен!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при добавлении агента: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при добавлении агента: {ex.Message}", false);
             }
         }
 
@@ -331,11 +363,18 @@ namespace WpfApp1
                 agent.LastName = LastNameTextBox.Text;
                 agent.DealShare = DealShareTextBox.Text;
 
-                dbContext.Entry(agent).State = EntityState.Modified;
-                dbContext.SaveChanges();
-                LoadAgents();
-                ClearAgentInputs();
-                MessageBox.Show("Агент успешно обновлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                try
+                {
+                    dbContext.Entry(agent).State = EntityState.Modified;
+                    dbContext.SaveChanges();
+                    LoadAgents();
+                    ClearAgentInputs();
+                    ShowPopup("Агент успешно обновлен!", true);
+                }
+                catch (Exception ex)
+                {
+                    ShowPopup($"Ошибка при обновлении агента: {ex.Message}", false);
+                }
             }
         }
 
@@ -348,13 +387,21 @@ namespace WpfApp1
 
             if (agent != null)
             {
-                dbContext.Agents.Remove(agent);
-                dbContext.SaveChanges();
-                LoadAgents();
-                ClearAgentInputs();
-                MessageBox.Show("Агент успешно удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                try
+                {
+                    dbContext.Agents.Remove(agent);
+                    dbContext.SaveChanges();
+                    LoadAgents();
+                    ClearAgentInputs();
+                    ShowPopup("Агент успешно удален!", true);
+                }
+                catch (Exception ex)
+                {
+                    ShowPopup($"Ошибка при удалении агента: {ex.Message}", false);
+                }
             }
         }
+
 
         private void AgentsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -381,55 +428,55 @@ namespace WpfApp1
                 string.IsNullOrWhiteSpace(ApartmentsFloorTextBox.Text) ||
                 string.IsNullOrWhiteSpace(ApartmentsTypeTextBox.Text))
             {
-                MessageBox.Show("Все поля должны быть заполнены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Все поля должны быть заполнены.", false);
                 return;
             }
 
             if (!int.TryParse(ApartmentsIDTextBox.Text, out int apartmentsId) || apartmentsId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             if (!int.TryParse(ApartmentsNumberTextBox.Text, out int number))
             {
-                MessageBox.Show("Номер должен быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Номер должен быть числом.", false);
                 return;
             }
 
             if (!int.TryParse(ApartmentsDistrictTextBox.Text, out int districtId))
             {
-                MessageBox.Show("ID района должен быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID района должен быть числом.", false);
                 return;
             }
 
             if (!double.TryParse(ApartmentsTotalAreaTextBox.Text, out double totalArea))
             {
-                MessageBox.Show("Общая площадь должна быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Общая площадь должна быть числом.", false);
                 return;
             }
 
             if (!int.TryParse(ApartmentsRoomsTextBox.Text, out int rooms))
             {
-                MessageBox.Show("Количество комнат должно быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Количество комнат должно быть числом.", false);
                 return;
             }
 
             if (!int.TryParse(ApartmentsFloorTextBox.Text, out int floor))
             {
-                MessageBox.Show("Этаж должен быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Этаж должен быть числом.", false);
                 return;
             }
 
             if (!int.TryParse(ApartmentsTypeTextBox.Text, out int typeId))
             {
-                MessageBox.Show("ID типа объекта должен быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID типа объекта должен быть числом.", false);
                 return;
             }
 
             if (dbContext.Apartments.Any(a => a.ID == apartmentsId))
             {
-                MessageBox.Show("Объект недвижимости с таким ID уже существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Объект недвижимости с таким ID уже существует.", false);
                 return;
             }
 
@@ -453,11 +500,11 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadApartments();
                 ClearApartmentsInputs();
-                MessageBox.Show("Объект недвижимости успешно добавлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Объект недвижимости успешно добавлен!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при добавлении объекта недвижимости: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при добавлении объекта недвижимости: {ex.Message}", false);
             }
         }
 
@@ -480,7 +527,7 @@ namespace WpfApp1
                 }
                 else
                 {
-                    MessageBox.Show("Некорректное значение для номера.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Некорректное значение для номера.", false);
                     return;
                 }
 
@@ -490,7 +537,7 @@ namespace WpfApp1
                 }
                 else
                 {
-                    MessageBox.Show("Некорректное значение для ID района.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Некорректное значение для ID района.", false);
                     return;
                 }
 
@@ -500,7 +547,7 @@ namespace WpfApp1
                 }
                 else
                 {
-                    MessageBox.Show("Некорректное значение для общей площади.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Некорректное значение для общей площади.", false);
                     return;
                 }
 
@@ -510,7 +557,7 @@ namespace WpfApp1
                 }
                 else
                 {
-                    MessageBox.Show("Некорректное значение для количества комнат.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Некорректное значение для количества комнат.", false);
                     return;
                 }
 
@@ -520,7 +567,7 @@ namespace WpfApp1
                 }
                 else
                 {
-                    MessageBox.Show("Некорректное значение для этажа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Некорректное значение для этажа.", false);
                     return;
                 }
 
@@ -530,15 +577,22 @@ namespace WpfApp1
                 }
                 else
                 {
-                    MessageBox.Show("Некорректное значение для ID типа объекта.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Некорректное значение для ID типа объекта.", false);
                     return;
                 }
 
-                dbContext.Entry(property).State = EntityState.Modified;
-                dbContext.SaveChanges();
-                LoadApartments();
-                ClearApartmentsInputs();
-                MessageBox.Show("Объект недвижимости успешно обновлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                try
+                {
+                    dbContext.Entry(property).State = EntityState.Modified;
+                    dbContext.SaveChanges();
+                    LoadApartments();
+                    ClearApartmentsInputs();
+                    ShowPopup("Объект недвижимости успешно обновлен!", true);
+                }
+                catch (Exception ex)
+                {
+                    ShowPopup($"Ошибка при обновлении объекта недвижимости: {ex.Message}", false);
+                }
             }
         }
 
@@ -551,13 +605,21 @@ namespace WpfApp1
 
             if (property != null)
             {
-                dbContext.Apartments.Remove(property);
-                dbContext.SaveChanges();
-                LoadApartments();
-                ClearApartmentsInputs();
-                MessageBox.Show("Объект недвижимости успешно удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                try
+                {
+                    dbContext.Apartments.Remove(property);
+                    dbContext.SaveChanges();
+                    LoadApartments();
+                    ClearApartmentsInputs();
+                    ShowPopup("Объект недвижимости успешно удален!", true);
+                }
+                catch (Exception ex)
+                {
+                    ShowPopup($"Ошибка при удалении объекта недвижимости: {ex.Message}", false);
+                }
             }
         }
+
 
         private void ApartmentsDataGrid_SelectionChanged1(object sender, SelectionChangedEventArgs e)
         {
@@ -584,25 +646,25 @@ namespace WpfApp1
                 SupplyClientComboBox.SelectedItem == null ||
                 SupplyApartmentComboBox.SelectedItem == null)
             {
-                MessageBox.Show("Все поля должны быть заполнены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Все поля должны быть заполнены.", false);
                 return;
             }
 
             if (!int.TryParse(SupplyIDTextBox.Text, out int supplyId) || supplyId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             if (!double.TryParse(SupplyPriceTextBox.Text, out double price))
             {
-                MessageBox.Show("Цена должна быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Цена должна быть числом.", false);
                 return;
             }
 
             if (dbContext.Supplies.Any(s => s.ID == supplyId))
             {
-                MessageBox.Show("Предложение с таким ID уже существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Предложение с таким ID уже существует.", false);
                 return;
             }
 
@@ -621,118 +683,85 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadSupplies();
                 ClearSupplyInputs();
-                MessageBox.Show("Предложение успешно добавлено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Предложение успешно добавлено!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при добавлении предложения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при добавлении предложения: {ex.Message}", false);
             }
         }
 
-
-
-
         private void UpdateSupplyButton_Click(object sender, RoutedEventArgs e)
         {
-            // Проверяем, выбрано ли какое-либо предложение в DataGrid
             if (SuppliesDataGrid.SelectedItem == null)
             {
-                MessageBox.Show("Выберите предложение для обновления.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Выберите предложение для обновления.", false);
                 return;
             }
 
             try
             {
-                // Получаем выбранное предложение из DataGrid
                 dynamic selectedSupply = SuppliesDataGrid.SelectedItem;
-
-                // Получаем ID выбранного предложения
                 int supplyId = selectedSupply.ID;
-
-                // Находим предложение в базе данных по ID
                 var supply = dbContext.Supplies.Find(supplyId);
 
                 if (supply != null)
                 {
-                    // Обновляем данные предложения из полей ввода
                     supply.ID = int.Parse(SupplyIDTextBox.Text);
                     supply.Price = Convert.ToString(SupplyPriceTextBox.Text);
                     supply.FK_AgentID = (int)SupplyAgentComboBox.SelectedValue;
                     supply.FK_ClientID = (int)SupplyClientComboBox.SelectedValue;
                     supply.FK_ApartmentsID = (int)SupplyApartmentComboBox.SelectedValue;
 
-                    // Сохраняем изменения в базе данных
                     dbContext.SaveChanges();
-
-                    // Обновляем список предложений в DataGrid
                     LoadSupplies();
-
-                    // Очищаем поля ввода после обновления
                     ClearSupplyInputs();
-
-                    MessageBox.Show("Предложение успешно обновлено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ShowPopup("Предложение успешно обновлено!", true);
                 }
                 else
                 {
-                    MessageBox.Show("Выбранное предложение не найдено в базе данных.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ShowPopup("Выбранное предложение не найдено в базе данных.", false);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при обновлении предложения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при обновлении предложения: {ex.Message}", false);
             }
         }
 
-
-
-
-
         private void DeleteSupplyButton_Click(object sender, RoutedEventArgs e)
         {
-            // Проверяем, выбрано ли какое-либо предложение в DataGrid
             if (SuppliesDataGrid.SelectedItem == null)
             {
-                MessageBox.Show("Выберите предложение для удаления.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Выберите предложение для удаления.", false);
                 return;
             }
 
             try
             {
-                // Получаем выбранное предложение из DataGrid
                 dynamic selectedSupply = SuppliesDataGrid.SelectedItem;
-
-                // Получаем ID выбранного предложения
                 int supplyId = selectedSupply.ID;
-
-                // Находим предложение в базе данных по ID
                 var supply = dbContext.Supplies.Find(supplyId);
 
                 if (supply != null)
                 {
-                    // Удаляем предложение из базы данных
                     dbContext.Supplies.Remove(supply);
-
-                    // Сохраняем изменения в базе данных
                     dbContext.SaveChanges();
-
-                    // Обновляем список предложений в DataGrid
                     LoadSupplies();
-
-                    // Очищаем поля ввода после удаления
                     ClearSupplyInputs();
-
-                    MessageBox.Show("Предложение успешно удалено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ShowPopup("Предложение успешно удалено!", true);
                 }
                 else
                 {
-                    MessageBox.Show("Выбранное предложение не найдено в базе данных.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ShowPopup("Выбранное предложение не найдено в базе данных.", false);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при удалении предложения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при удалении предложения: {ex.Message}", false);
             }
         }
+
 
 
 
@@ -802,10 +831,7 @@ namespace WpfApp1
             ApartmentsTypeTextBox.Text = string.Empty;
         }
 
-        private void ShowPopup(string message, bool isSuccess)
-        {
-            MessageBox.Show(message, isSuccess ? "Успех" : "Ошибка", MessageBoxButton.OK, isSuccess ? MessageBoxImage.Information : MessageBoxImage.Warning);
-        }
+        
 
         private bool IsValidName(string name, int maxLength)
         {
@@ -833,26 +859,27 @@ namespace WpfApp1
         private void ClosePopup_Click(object sender, RoutedEventArgs e)
         {
             SuccessPopup.IsOpen = false;
+            UnSuccessPopup.IsOpen = false;
         }
 
         private void AddDemandsButton_Click(object sender, RoutedEventArgs e)
         {
             if (!ValidateDemandsInputs())
             {
-                MessageBox.Show("Все поля должны быть заполнены корректно.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Все поля должны быть заполнены корректно.", false);
                 return;
             }
 
             if (!int.TryParse(DemandsIDTextBox.Text, out int demandId) || demandId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             if (!double.TryParse(DemandsMinPriceTextBox.Text, out double minPrice) ||
                 !double.TryParse(DemandsMaxPriceTextBox.Text, out double maxPrice))
             {
-                MessageBox.Show("Цены должны быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Цены должны быть числом.", false);
                 return;
             }
 
@@ -860,32 +887,28 @@ namespace WpfApp1
                 !int.TryParse(DemandsClientIDTextBox.Text, out int clientId) ||
                 !int.TryParse(DemandsTypeIDTextBox.Text, out int typeId))
             {
-                MessageBox.Show("Агент, клиент и тип объекта должны быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Агент, клиент и тип объекта должны быть числом.", false);
                 return;
             }
 
-            // Проверяем существование агента
             if (!dbContext.Agents.Any(a => a.ID == agentId))
             {
-                MessageBox.Show("Агент с таким ID не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Агент с таким ID не найден.", false);
                 return;
             }
 
-            // Проверяем существование клиента
             if (!dbContext.Clients.Any(c => c.ID == clientId))
             {
-                MessageBox.Show("Клиент с таким ID не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Клиент с таким ID не найден.", false);
                 return;
             }
 
-            // Проверяем существование типа объекта
             if (!dbContext.Type_Object.Any(t => t.ID == typeId))
             {
-                MessageBox.Show("Тип объекта с таким ID не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Тип объекта с таким ID не найден.", false);
                 return;
             }
 
-            // Создаем новую потребность
             Demands newDemand = new Demands
             {
                 ID = demandId,
@@ -912,11 +935,11 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadDemands();
                 ClearDemandInputs();
-                MessageBox.Show("Потребность успешно добавлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Потребность успешно добавлена!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при добавлении потребности: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при добавлении потребности: {ex.Message}", false);
             }
         }
 
@@ -998,21 +1021,21 @@ namespace WpfApp1
         {
             if (!int.TryParse(DemandsIDTextBox.Text, out int demandId) || demandId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             var existingDemand = dbContext.Demands.FirstOrDefault(d => d.ID == demandId);
             if (existingDemand == null)
             {
-                MessageBox.Show("Потребность с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Потребность с таким ID не найдена.", false);
                 return;
             }
 
             if (!double.TryParse(DemandsMinPriceTextBox.Text, out double minPrice) ||
                 !double.TryParse(DemandsMaxPriceTextBox.Text, out double maxPrice))
             {
-                MessageBox.Show("Цены должны быть числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Цены должны быть числом.", false);
                 return;
             }
 
@@ -1026,7 +1049,7 @@ namespace WpfApp1
                 !int.TryParse(DemandsMinFloorTextBox.Text, out int minFloor) ||
                 !int.TryParse(DemandsMaxFloorTextBox.Text, out int maxFloor))
             {
-                MessageBox.Show("Некоторые поля содержат некорректные данные.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Некоторые поля содержат некорректные данные.", false);
                 return;
             }
 
@@ -1051,11 +1074,11 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadDemands();
                 ClearDemandInputs();
-                MessageBox.Show("Потребность успешно обновлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Потребность успешно обновлена!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при обновлении потребности: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при обновлении потребности: {ex.Message}", false);
             }
         }
 
@@ -1063,14 +1086,14 @@ namespace WpfApp1
         {
             if (!int.TryParse(DemandsIDTextBox.Text, out int demandId) || demandId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             var demandToDelete = dbContext.Demands.FirstOrDefault(d => d.ID == demandId);
             if (demandToDelete == null)
             {
-                MessageBox.Show("Потребность с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Потребность с таким ID не найдена.", false);
                 return;
             }
 
@@ -1080,11 +1103,11 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadDemands();
                 ClearDemandInputs();
-                MessageBox.Show("Потребность успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Потребность успешно удалена!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при удалении потребности: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при удалении потребности: {ex.Message}", false);
             }
         }
 
@@ -1094,70 +1117,66 @@ namespace WpfApp1
             {
                 if (!int.TryParse(IDDealsTextBox.Text, out int id))
                 {
-                    MessageBox.Show("Поле ID должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Поле ID должно содержать целое число.", false);
                     return;
                 }
 
                 if (id < 0)
                 {
-                    MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("ID должен быть положительным числом.", false);
                     return;
                 }
 
                 if (!int.TryParse(DemandssIDTextBox.Text, out int demandId))
                 {
-                    MessageBox.Show("Поле ID Потребности должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Поле ID Потребности должно содержать целое число.", false);
                     return;
                 }
 
                 if (demandId < 0)
                 {
-                    MessageBox.Show("ID Потребности должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("ID Потребности должен быть положительным числом.", false);
                     return;
                 }
 
                 if (!int.TryParse(SuppliesIDTextBox.Text, out int supplyId))
                 {
-                    MessageBox.Show("Поле ID Предложения должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Поле ID Предложения должно содержать целое число.", false);
                     return;
                 }
 
                 if (supplyId < 0)
                 {
-                    MessageBox.Show("ID Предложения должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("ID Предложения должен быть положительным числом.", false);
                     return;
                 }
 
-                // Проверка существования записи в таблице Demands
                 var demandExists = dbContext.Demands.Any(d => d.ID == demandId);
 
                 if (!demandExists)
                 {
-                    MessageBox.Show("Потребность с указанным ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Потребность с указанным ID не найдена.", false);
                     return;
                 }
 
-                // Проверка существования записи в таблице Supplies
                 var supplyExists = dbContext.Supplies.Any(s => s.ID == supplyId);
 
                 if (!supplyExists)
                 {
-                    MessageBox.Show("Предложение с указанным ID не найдено.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowPopup("Предложение с указанным ID не найдено.", false);
                     return;
                 }
 
-                // Добавление сделки в базу данных
                 dbContext.Deals.Add(new Deals { ID = id, Demant_ID = demandId, Supply_ID = supplyId });
                 dbContext.SaveChanges();
 
-                // Обновление DataGrid
                 LoadDeals();
 
-                MessageBox.Show("Сделка успешно добавлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Сделка успешно добавлена!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при добавлении сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при добавлении сделки: {ex.Message}", false);
             }
         }
 
@@ -1172,58 +1191,55 @@ namespace WpfApp1
         {
             if (!int.TryParse(IDDealsTextBox.Text, out int id) || id < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             var existingDeal = dbContext.Deals.FirstOrDefault(d => d.ID == id);
             if (existingDeal == null)
             {
-                MessageBox.Show("Сделка с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Сделка с таким ID не найдена.", false);
                 return;
             }
 
             if (!int.TryParse(DemandssIDTextBox.Text, out int demandId))
             {
-                MessageBox.Show("Поле ID Потребности должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Поле ID Потребности должно содержать целое число.", false);
                 return;
             }
 
             if (demandId < 0)
             {
-                MessageBox.Show("ID Потребности должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID Потребности должен быть положительным числом.", false);
                 return;
             }
 
             if (!int.TryParse(SuppliesIDTextBox.Text, out int supplyId))
             {
-                MessageBox.Show("Поле ID Предложения должно содержать целое число.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Поле ID Предложения должно содержать целое число.", false);
                 return;
             }
 
             if (supplyId < 0)
             {
-                MessageBox.Show("ID Предложения должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID Предложения должен быть положительным числом.", false);
                 return;
             }
 
-            // Проверка существования записи в таблице Demands
             var demandExists = dbContext.Demands.Any(d => d.ID == demandId);
             if (!demandExists)
             {
-                MessageBox.Show("Потребность с указанным ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Потребность с указанным ID не найдена.", false);
                 return;
             }
 
-            // Проверка существования записи в таблице Supplies
             var supplyExists = dbContext.Supplies.Any(s => s.ID == supplyId);
             if (!supplyExists)
             {
-                MessageBox.Show("Предложение с указанным ID не найдено.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Предложение с указанным ID не найдено.", false);
                 return;
             }
 
-            // Обновление данных сделки
             existingDeal.Demant_ID = demandId;
             existingDeal.Supply_ID = supplyId;
 
@@ -1232,13 +1248,14 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadDeals();
                 ClearDealInputs();
-                MessageBox.Show("Сделка успешно обновлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Сделка успешно обновлена!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при обновлении сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при обновлении сделки: {ex.Message}", false);
             }
         }
+
 
         private void ClearDealInputs()
         {
@@ -1253,20 +1270,19 @@ namespace WpfApp1
         {
             if (!int.TryParse(IDDealsTextBox.Text, out int dealId) || dealId < 0)
             {
-                MessageBox.Show("ID должен быть положительным числом.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("ID должен быть положительным числом.", false);
                 return;
             }
 
             var dealToDelete = dbContext.Deals.FirstOrDefault(d => d.ID == dealId);
             if (dealToDelete == null)
             {
-                MessageBox.Show("Сделка с таким ID не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowPopup("Сделка с таким ID не найдена.", false);
                 return;
             }
 
             try
             {
-                // Подтверждение удаления
                 var result = MessageBox.Show("Вы уверены, что хотите удалить выбранную сделку?", "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.No)
                 {
@@ -1277,11 +1293,11 @@ namespace WpfApp1
                 dbContext.SaveChanges();
                 LoadDeals();
                 ClearDealInputs();
-                MessageBox.Show("Сделка успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowPopup("Сделка успешно удалена!", true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при удалении сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowPopup($"Ошибка при удалении сделки: {ex.Message}", false);
             }
         }
 
@@ -1303,5 +1319,112 @@ namespace WpfApp1
                 MessageBox.Show($"Ошибка при выборе сделки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private int LevenshteinDistance(string source, string target)
+        {
+            if (string.IsNullOrEmpty(source)) return target.Length;
+            if (string.IsNullOrEmpty(target)) return source.Length;
+
+            int[,] distance = new int[source.Length + 1, target.Length + 1];
+
+            for (int i = 0; i <= source.Length; distance[i, 0] = i++) { }
+            for (int j = 0; j <= target.Length; distance[0, j] = j++) { }
+
+            for (int i = 1; i <= source.Length; i++)
+            {
+                for (int j = 1; j <= target.Length; j++)
+                {
+                    int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
+                    distance[i, j] = Math.Min(
+                        Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1),
+                        distance[i - 1, j - 1] + cost);
+                }
+            }
+
+            return distance[source.Length, target.Length];
+        }
+
+        private void SearchApartmentsButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoadApartments(); // Загрузка всех данных перед фильтрацией
+
+            string query = SearchTextBox.Text;
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                MessageBox.Show("Введите поисковый запрос.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var results = dbContext.Apartments.ToList().Where(apartment =>
+                LevenshteinDistance(apartment.Adress_City, query) <= 3 ||
+                LevenshteinDistance(apartment.Adress_Street, query) <= 3 ||
+                LevenshteinDistance(apartment.Adress_House.ToString(), query) <= 1 ||
+                LevenshteinDistance(apartment.Adress_Number.ToString(), query) <= 1
+            ).ToList();
+
+            ApartmentsDataGrid.ItemsSource = results;
+
+            if (results.Count == 0)
+            {
+                MessageBox.Show("Нет объектов недвижимости, соответствующих критериям поиска.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = string.Empty;
+            LoadApartments(); // Метод для загрузки всех данных
+        }
+
+        public void ShowPopup(string message, bool isSuccess)
+        {
+            // Сначала закрываем все открытые всплывающие окна
+            ClosePopups();
+
+            if (isSuccess)
+            {
+                SuccessPopupText.Text = message;
+                SuccessPopup.IsOpen = true;
+                isShowingSuccessPopup = true;
+            }
+            else
+            {
+                UnSuccessPopupText.Text = message;
+                UnSuccessPopup.IsOpen = true;
+                isShowingUnSuccessPopup = true;
+            }
+
+            // Устанавливаем таймер на закрытие уведомления через 3 секунды
+            timer.Interval = 3000;
+            timer.Start();
+        }
+
+        private void TimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            // Закрываем открытые уведомления после истечения времени
+            ClosePopups();
+        }
+
+        private void ClosePopups()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (isShowingSuccessPopup)
+                {
+                    SuccessPopup.IsOpen = false;
+                    isShowingSuccessPopup = false;
+                }
+
+                if (isShowingUnSuccessPopup)
+                {
+                    UnSuccessPopup.IsOpen = false;
+                    isShowingUnSuccessPopup = false;
+                }
+            });
+        }
+
+
     }
 }
